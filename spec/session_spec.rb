@@ -56,6 +56,13 @@ describe RubyBox::Session do
         Net::HTTP.any_instance.should_receive(:open_timeout=).with(open_timeout)
         session.request(uri, request)
       end
+
+      it "passes options along to OAuth2 (so that it can pass along to Faraday)" do
+        OAuth2::Client.should_receive(:new) do |_, _, opts|
+          opts[:connection_opts].should == { request: { timeout: read_timeout, open_timeout: open_timeout } }
+        end
+        session.request(uri, request)
+      end
     end
 
     context "when the timeout options are not set" do
@@ -68,6 +75,13 @@ describe RubyBox::Session do
       it "does not passes them along to Net::HTTP, in order to use that library's defaults" do
         Net::HTTP.any_instance.should_not_receive(:read_timeout=).with(read_timeout)
         Net::HTTP.any_instance.should_not_receive(:open_timeout=).with(open_timeout)
+        session.request(uri, request)
+      end
+
+      it "does not pass options to Faraday" do
+        OAuth2::Client.should_receive(:new) do |_, _, opts|
+          opts[:connection_opts].should == { request: {} }
+        end
         session.request(uri, request)
       end
     end

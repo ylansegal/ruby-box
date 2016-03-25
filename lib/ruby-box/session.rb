@@ -12,9 +12,18 @@ module RubyBox
     def initialize(opts={}, backoff=0.1)
 
       @backoff = backoff # try not to excessively hammer API.
+      @read_timeout = opts[:read_timeout]
+      @open_timeout = opts[:open_timeout]
 
       if opts[:client_id]
-        @oauth2_client = OAuth2::Client.new(opts[:client_id], opts[:client_secret], OAUTH2_URLS.dup)
+        faraday_opts = {}
+        faraday_opts[:timeout] = @read_timeout if @read_timeout
+        faraday_opts[:open_timeout] = @open_timeout if @open_timeout
+
+        oauth2_opts = OAUTH2_URLS.dup.merge(connection_opts: { request: faraday_opts })
+        @oauth2_client = OAuth2::Client.new(opts[:client_id],
+                                            opts[:client_secret],
+                                            oauth2_opts)
         @access_token = OAuth2::AccessToken.new(@oauth2_client, opts[:access_token]) if opts[:access_token]
         @refresh_token = opts[:refresh_token]
         @as_user = opts[:as_user]
@@ -22,8 +31,6 @@ module RubyBox
         @api_key = opts[:api_key]
         @auth_token = opts[:auth_token]
       end
-      @read_timeout = opts[:read_timeout]
-      @open_timeout = opts[:open_timeout]
     end
 
     def authorize_url(redirect_uri, state=nil)

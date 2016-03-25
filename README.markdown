@@ -37,7 +37,7 @@ p '@token.refresh_token' # token that can be exchanged for a new access_token on
 session = RubyBox::Session.new({
   client_id: 'your-client-id',
   client_secret: 'your-client-secret',
-  access_token: 'original-access-token' 
+  access_token: 'original-access-token'
 })
 
 # you need to persist this somehow. the refresh token will change every time you use it
@@ -58,6 +58,28 @@ session = RubyBox::Session.new({
 
 client = RubyBox::Client.new(session)
 ```
+
+Configuration
+=============
+
+The `RubyBox::Session` can take network timeout options, if desired:
+
+``` ruby
+session = RubyBox::Session.new({
+  client_id: 'your-client-id',
+  client_secret: 'your-client-secret',
+  access_token: 'access-token',
+  read_timeout: 60,
+  open_timeout: 30
+})
+
+```
+
+`read_timeout` and `open_timeout` are passed along to `Net::HTTP` if present. From the ruby documentations:
+
+> read_timeout: Number of seconds to wait for one block to be read (via one read(2) call). Any number may be used, including Floats for fractional seconds.
+
+> open_timeout: Number of seconds to wait for the connection to open. Any number may be used, including Floats for fractional seconds.
 
 Usage
 =====
@@ -172,7 +194,7 @@ p file.created_at
 
 ```ruby
 file = client.upload_file('./LICENSE.txt', '/license_folder') # lookups by id are more efficient
-file = client.upload_file_by_folder_id('./LICENSE.txt', @folder_id) 
+file = client.upload_file_by_folder_id('./LICENSE.txt', @folder_id)
 ```
 
 * Downloading a file.
@@ -334,7 +356,7 @@ Contributing to ruby-box
 ========================
 
 RubyBox does not yet support all of Box's API Version 2.0 functionality, be liberal with your contributions.
- 
+
 * Rename account.example to account.yml and fill in your Box credentials
 * Type bundle install
 * Type rake.. tests should pass

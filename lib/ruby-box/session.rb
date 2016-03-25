@@ -22,6 +22,8 @@ module RubyBox
         @api_key = opts[:api_key]
         @auth_token = opts[:auth_token]
       end
+      @read_timeout = opts[:read_timeout]
+      @open_timeout = opts[:open_timeout]
     end
 
     def authorize_url(redirect_uri, state=nil)
@@ -57,9 +59,10 @@ module RubyBox
     end
 
     def request(uri, request, raw=false, retries=0)
-
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
+      http.read_timeout = @read_timeout if @read_timeout
+      http.open_timeout = @open_timeout if @open_timeout
       #http.set_debug_output($stdout)
 
       if @access_token
